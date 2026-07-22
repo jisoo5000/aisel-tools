@@ -1,0 +1,597 @@
+<title>AISEL 작업지시서</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #E9ECF2;
+    --sheet: #FFFFFF;
+    --ink: #191C23;
+    --muted: #667085;
+    --line: #23262E;
+    --hair: #D3D8E0;
+    --accent: #1D5FD8;
+    --accent-soft: #EAF1FD;
+    --field: #F5F9FF;
+    --field-line: #B9C9E6;
+    --good: #15803D;
+    --good-soft: #E7F5EC;
+    --warn: #B45309;
+    --warn-soft: #FCEFDD;
+    --bad: #C61E1E;
+    --bad-soft: #FBE7E7;
+    --radius: 8px;
+    --kfont: "Pretendard", -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0D0F13; --sheet: #171A20; --ink: #E8EBF1; --muted: #99A0AC;
+      --line: #444A55; --hair: #333944; --accent: #6AA1FF; --accent-soft: #182437;
+      --field: #1D222B; --field-line: #3A4454;
+      --good:#4ADE80; --good-soft:#12281B; --warn:#F0A94A; --warn-soft:#2E2413; --bad:#F87171; --bad-soft:#2E1717;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #E9ECF2; --sheet:#FFFFFF; --ink:#191C23; --muted:#667085; --line:#23262E; --hair:#D3D8E0;
+    --accent:#1D5FD8; --accent-soft:#EAF1FD; --field:#F5F9FF; --field-line:#B9C9E6;
+    --good:#15803D; --good-soft:#E7F5EC; --warn:#B45309; --warn-soft:#FCEFDD; --bad:#C61E1E; --bad-soft:#FBE7E7;
+  }
+  :root[data-theme="dark"] {
+    --bg:#0D0F13; --sheet:#171A20; --ink:#E8EBF1; --muted:#99A0AC; --line:#444A55; --hair:#333944;
+    --accent:#6AA1FF; --accent-soft:#182437; --field:#1D222B; --field-line:#3A4454;
+    --good:#4ADE80; --good-soft:#12281B; --warn:#F0A94A; --warn-soft:#2E2413; --bad:#F87171; --bad-soft:#2E1717;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .page {
+    background: var(--bg); color: var(--ink); font-family: var(--kfont);
+    min-height: 100vh; padding: 22px 16px 60px; -webkit-font-smoothing: antialiased;
+  }
+  input, select, textarea, button { font-family: inherit; color: inherit; }
+  input, textarea, select { background: var(--field); border: 1px solid var(--field-line); border-radius: 5px; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar {
+    max-width: 820px; margin: 0 auto 16px; display: flex; flex-wrap: wrap; gap: 10px 14px;
+    align-items: flex-end; background: var(--sheet); border: 1px solid var(--hair);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .toolbar .tf { display: flex; flex-direction: column; gap: 4px; }
+  .toolbar label { font-size: 11px; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+  .toolbar select, .toolbar input { padding: 7px 9px; font-size: 13.5px; }
+  .toolbar .grow { flex: 1 1 120px; }
+  .btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 8px 15px; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: .01em;
+  }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn:active { transform: translateY(1px); }
+  .hint { max-width: 820px; margin: 0 auto 18px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .hint b { color: var(--accent); }
+
+  /* ---------- sheet ---------- */
+  .sheet {
+    max-width: 820px; margin: 0 auto; background: var(--sheet);
+    border: 2.5px solid var(--line); box-shadow: 0 10px 34px rgba(20,25,40,.14);
+  }
+  .sheet h1 {
+    margin: 0; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: .16em;
+    padding: 14px 8px 12px; border-bottom: 2.5px solid var(--line);
+  }
+  .cell { border-right: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); padding: 9px 12px; }
+  .cell:last-child { border-right: none; }
+  .lbl { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .03em; }
+
+  .meta { display: grid; grid-template-columns: 1.05fr 1.5fr 1fr; }
+  .meta .k { font-weight: 700; color: var(--ink); }
+  .date-row { display: flex; align-items: baseline; gap: 5px; font-size: 16px; font-weight: 700; }
+  .date-row input { width: 46px; text-align: center; padding: 4px 2px; font-size: 15px; }
+  .date-row input.y { width: 62px; }
+  .flat { border: none; background: transparent; width: 100%; font-size: 15px; padding: 3px 2px; }
+  .flat:focus { background: var(--field); }
+  .designer { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .designer .k { font-size: 14px; white-space: nowrap; }
+  .designer input { flex: 1 1 auto; min-width: 40px; }
+
+  .item-name { display: flex; align-items: baseline; gap: 8px; }
+  .item-name .k { font-size: 15px; white-space: nowrap; }
+  .item-name input { font-size: 19px; font-weight: 800; letter-spacing: .01em; }
+  .pumbeon { display: flex; align-items: center; gap: 8px; margin-top: 9px; flex-wrap: wrap; }
+  .pumbeon .code {
+    font-size: 15px; font-weight: 800; letter-spacing: .06em; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid var(--field-line); border-radius: 5px;
+    padding: 4px 10px; font-variant-numeric: tabular-nums;
+  }
+  .pumbeon .pill {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    border: 1px solid var(--hair); border-radius: 20px; padding: 3px 10px;
+  }
+  .fabric-row { display: flex; gap: 10px; margin-top: 9px; flex-wrap: wrap; }
+  .mini { display: flex; flex-direction: column; gap: 3px; font-size: 11px; }
+  .mini > span { font-weight: 700; color: var(--muted); letter-spacing: .03em; }
+  .mini.grow { flex: 1 1 130px; }
+  .mini select, .mini input { padding: 6px 8px; font-size: 13.5px; min-width: 130px; }
+  .mini.grow input { min-width: 60px; width: 100%; }
+
+  .factory .k { font-size: 15px; font-weight: 700; }
+  .factory input { font-size: 15px; }
+  .stylecode { margin-top: 9px; }
+  .stylecode input { font-size: 15px; font-weight: 700; letter-spacing: .08em; text-align: center; }
+
+  /* photos */
+  .photos { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1.5px solid var(--line); }
+  .colorbar {
+    grid-column: 1 / -1; text-align: center; font-weight: 800; letter-spacing: .5em;
+    padding: 7px; border-bottom: 1.5px solid var(--line); font-size: 15px;
+  }
+  .photo {
+    position: relative; min-height: 300px; display: flex; align-items: center; justify-content: center;
+    border-right: 1.5px solid var(--line); background: repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(120,130,150,.05) 11px, rgba(120,130,150,.05) 22px);
+    cursor: pointer; overflow: hidden;
+  }
+  .photo:last-child { border-right: none; }
+  .photo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .photo .ph { text-align: center; color: var(--muted); font-size: 13px; line-height: 1.7; pointer-events: none; padding: 12px; }
+  .photo .ph .big { font-size: 26px; opacity: .5; }
+  .photo .tag {
+    position: absolute; top: 8px; left: 8px; font-size: 11px; font-weight: 700; letter-spacing: .05em;
+    background: rgba(255,255,255,.86); color: #333; padding: 3px 9px; border-radius: 20px; z-index: 2;
+  }
+  .photo .clr { position: absolute; top: 8px; right: 8px; z-index: 3; display: none; font-size: 11px;
+    background: rgba(20,20,25,.7); color:#fff; border:none; border-radius: 20px; padding: 3px 9px; cursor: pointer; }
+  .photo.filled .clr { display: block; }
+  .photo.filled .ph { display: none; }
+  .photo.drag { outline: 3px dashed var(--accent); outline-offset: -7px; background: var(--accent-soft); }
+  .photo input[type=file] { display: none; }
+
+  /* detail */
+  .detail { display: grid; grid-template-columns: 1fr 1fr; }
+  .sec-title { font-weight: 800; letter-spacing: .12em; font-size: 14.5px; margin-bottom: 10px; }
+  .mat textarea {
+    width: 100%; min-height: 210px; resize: vertical; line-height: 1.65; font-size: 13.5px;
+    padding: 9px 10px; border-radius: 6px;
+  }
+  .mat .tip { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+
+  .cost .lines { display: flex; flex-direction: column; gap: 5px; margin-bottom: 9px; }
+  .cost .line { display: grid; grid-template-columns: minmax(64px,1fr) 66px 52px 66px 18px; gap: 5px; align-items: center; }
+  .cost .line input { padding: 6px 6px; font-size: 12.5px; }
+  .cost .line input.unit, .cost .line input.qty { text-align: right; }
+  .cost .line .amt { text-align: right; font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .cost .line .del { border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; }
+  .cost .lines-head { display: grid; grid-template-columns: minmax(64px,1fr) 66px 52px 66px 18px; gap: 5px; font-size: 10px; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
+  .cost .lines-head span { text-align: center; }
+  .cost .lines-head .h-nm { text-align: left; }
+  .cost .lines-head .h-amt { text-align: right; }
+  .cost .add { background: transparent; border: 1px dashed var(--field-line); color: var(--accent); border-radius: 6px; padding: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; width: 100%; }
+  .fixed-row { display: grid; grid-template-columns: 1fr 92px; gap: 6px; align-items: center; margin-top: 5px; }
+  .fixed-row .k { font-weight: 700; font-size: 13px; padding-left: 2px; }
+  .fixed-row input { text-align: right; padding: 6px 8px; font-size: 12.5px; }
+  .total-row {
+    display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px;
+    padding: 10px 12px; background: var(--accent-soft); border-radius: 7px; border: 1px solid var(--field-line);
+  }
+  .total-row .k { font-weight: 800; letter-spacing: .05em; font-size: 14px; }
+  .total-row .v { font-weight: 800; font-size: 22px; color: var(--accent); }
+  .total-row.est { margin-top: 6px; background: var(--field); }
+  .total-row .estv { width: 150px; text-align: right; font-weight: 800; font-size: 20px; color: var(--accent); padding: 4px 8px; }
+
+  /* pricing strip */
+  .pricing { border-top: 1.5px solid var(--line); padding: 14px 16px 18px; }
+  .pricing .sec-title { margin-bottom: 12px; }
+  .mult { display: grid; grid-template-columns: repeat(3, 1fr) 1.25fr; gap: 10px; }
+  .mcard { border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .mcard .cap { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .03em; }
+  .mcard .val { font-size: 18px; font-weight: 800; margin-top: 4px; }
+  .mcard.sell { text-align: left; background: var(--field); border-color: var(--field-line); }
+  .mcard.sell .cap { display: flex; justify-content: space-between; align-items: center; }
+  .mcard.sell input { width: 100%; margin-top: 6px; font-size: 19px; font-weight: 800; text-align: right; padding: 6px 8px; }
+  .verdict { display: flex; gap: 10px; align-items: stretch; margin-top: 12px; flex-wrap: wrap; }
+  .badge { flex: 1 1 150px; border-radius: 8px; padding: 10px 14px; border: 1px solid; display: flex; flex-direction: column; gap: 2px; }
+  .badge .cap { font-size: 11px; font-weight: 700; letter-spacing: .03em; opacity: .85; }
+  .badge .big { font-size: 22px; font-weight: 800; }
+  .badge.good { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+  .badge.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .badge.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+  .badge.neutral { background: var(--field); border-color: var(--field-line); color: var(--muted); }
+  .target-note { margin-top: 10px; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .target-note b { color: var(--ink); }
+
+  .foot { border-top: 1.5px solid var(--line); padding: 8px 16px; font-size: 11px; color: var(--muted); display:flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;}
+
+  /* ---------- print ---------- */
+  @media print {
+    :root { --bg:#fff; --sheet:#fff; --ink:#000; --line:#000; --hair:#888; --accent:#0b3f9e; --field:#fff; --accent-soft:#eef4ff; }
+    .page { background:#fff; padding: 0; }
+    .toolbar, .hint, .cost .add, .cost .line .del, .photo .clr, .foot .noprint { display: none !important; }
+    .sheet { box-shadow: none; max-width: none; border-width: 2px; }
+    input, textarea, select { background: transparent !important; border-color: transparent !important; }
+    .pumbeon .code, .total-row, .mcard, .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+
+<div class="page">
+  <!-- TOOLBAR (화면 전용) -->
+  <div class="toolbar">
+    <div class="tf">
+      <label>시즌</label>
+      <select id="season">
+        <option value="26S">26 S/S</option>
+        <option value="26F" selected>26 F/W</option>
+        <option value="27S">27 S/S</option>
+        <option value="27F">27 F/W</option>
+      </select>
+    </div>
+    <div class="tf grow">
+      <label>카테고리 (품명 자동)</label>
+      <select id="cat"></select>
+    </div>
+    <div class="tf">
+      <label>순번 (자동)</label>
+      <input id="seq" type="text" inputmode="numeric" placeholder="001" style="width:70px" />
+    </div>
+    <button class="btn" id="genBtn">다음 번호 ▷</button>
+    <div style="flex:1 1 auto"></div>
+    <span id="saveStat" style="font-size:11px;color:var(--muted);font-weight:600;align-self:center">저장됨 ✓</span>
+    <button class="btn ghost" id="newBtn">+ 새 작지</button>
+    <button class="btn ghost" id="printBtn">🖨 PDF로 저장 / 인쇄</button>
+  </div>
+
+  <div class="hint">
+    채우는 순서 → <b>①</b> 시즌·카테고리·순번 → <b>품번 생성</b> (이름 안 떠올라도 품번부터 확정)
+    · <b>②</b> 원단·품명 확인/수정 · <b>③</b> 사진 클릭·드래그·붙여넣기 · <b>④</b> <b>단가 × 수량</b> 입력하면 예상 제조원가 자동합산
+    · <b>⑤</b> PDF로 저장 → 구글드라이브 업로드. <b>판매가는 안 넣습니다.</b>
+  </div>
+
+  <!-- SHEET -->
+  <div class="sheet" id="sheet">
+    <h1>AISEL 작업지시서</h1>
+
+    <div class="meta">
+      <!-- 좌: 날짜 + 디자이너 -->
+      <div class="cell">
+        <div class="date-row">
+          <input class="y" id="yy" value="2026" /> .
+          <input id="mm" value="3" /> .
+          <input id="dd" value="25" /> .
+        </div>
+        <div class="designer">
+          <span class="k">디자이너 :</span>
+          <input id="designer" placeholder="이름" />
+        </div>
+        <div class="designer">
+          <span class="k">연락처 :</span>
+          <input id="phone" placeholder="010-0000-0000" />
+        </div>
+      </div>
+
+      <!-- 중: 아이템명 + 품번 + 품명 -->
+      <div class="cell">
+        <div class="item-name">
+          <span class="k">아이템명 :</span>
+          <input class="flat" id="itemName" placeholder="(나중에 이름 지어도 OK)" />
+        </div>
+        <div class="pumbeon">
+          <span class="code" id="codeView">품번 —</span>
+        </div>
+        <div class="fabric-row">
+          <label class="mini"><span>원단 (선택)</span>
+            <select id="fabric">
+              <option value="다이마루">다이마루 (니트/저지)</option>
+              <option value="직기">직기 (우븐)</option>
+              <option value="니트">니트 / 스웨터</option>
+              <option value="데님">데님</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+          <label class="mini grow"><span>품명 (수정 가능)</span>
+            <input id="pumMyeong" placeholder="예: 니트탑 / 블라우스" />
+          </label>
+        </div>
+      </div>
+
+      <!-- 우: 공장 + 스타일코드 -->
+      <div class="cell factory">
+        <div><span class="k">공장 :</span> <input class="flat" id="factory" placeholder="애플" style="width:auto;display:inline-block;min-width:90px" /></div>
+        <div class="stylecode">
+          <div class="lbl">원단 혼용률</div>
+          <input id="blend" placeholder="예: 폴리 100% / 레이온 95% 스판 5%" />
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="photos">
+      <div class="colorbar">&lt; C O L O R &gt;</div>
+      <div class="photo" id="ph1">
+        <span class="tag">도식화</span>
+        <button class="clr" type="button">✕ 지우기</button>
+        <div class="ph"><div class="big">✎</div>도식화 (플랫)<br /><b>클릭</b>해서 파일 선택<br /><span style="font-size:11px">드래그 · Ctrl+V 붙여넣기</span></div>
+        <img alt="" />
+        <input type="file" id="f1" accept="image/*" />
+      </div>
+      <div class="photo" id="ph2">
+        <span class="tag">실물 컷</span>
+        <button class="clr" type="button">✕ 지우기</button>
+        <div class="ph"><div class="big">◲</div>실물 사진<br /><b>클릭</b>해서 파일 선택<br /><span style="font-size:11px">드래그 · Ctrl+V 붙여넣기</span></div>
+        <img alt="" />
+        <input type="file" id="f2" accept="image/*" />
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="detail">
+      <!-- 원부자재 -->
+      <div class="cell mat">
+        <div class="sec-title">&lt;&lt; 원부자재 &gt;&gt;</div>
+        <textarea id="materials" placeholder="예)
+셀프 C/3270
+#A73 58-60&quot; @6,200 → @5,000
+요척 : 1y
+2번 S베지 / 9번 검정
+
+보라 C/1043
+#10미리 로나 무광 @30  3EA
+#단추고리 @1500  1y=5~60EA"></textarea>
+        <div class="tip">원단·부자재·요척·컬러를 자유롭게. 금액은 오른쪽 원가계산서에 숫자로 넣으면 자동 합산됩니다.</div>
+      </div>
+
+      <!-- 원가계산서 -->
+      <div class="cell cost">
+        <div class="sec-title">&lt; 원 가 계 산 서 &gt;</div>
+        <div class="lines-head">
+          <span class="h-nm">항목</span><span>단가</span><span>수량</span><span class="h-amt">금액</span><span></span>
+        </div>
+        <div class="lines" id="costLines"></div>
+        <button class="add" id="addLine">+ 자재 항목 추가</button>
+
+        <div class="fixed-row">
+          <span class="k">공임</span>
+          <input class="won tnum" id="gongim" type="text" inputmode="numeric" value="6,000" />
+        </div>
+        <div class="fixed-row">
+          <span class="k">시야게 <span style="font-weight:500;color:var(--muted);font-size:11px">(직기 위주)</span></span>
+          <input class="won tnum" id="siyage" type="text" inputmode="numeric" value="1,200" />
+        </div>
+
+        <div class="total-row">
+          <span class="k">토탈 제조원가</span>
+          <span class="v tnum" id="totalView">0원</span>
+        </div>
+        <div class="total-row est">
+          <span class="k">예상 제조원가</span>
+          <input class="won tnum estv" id="estCost" placeholder="0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>AISEL / 스페이스잇 메인 작업지시서</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- 카테고리 · 품명 · 타겟판가 체계 ----------
+  const CATS = [
+    { code:"BL",  name:"블라우스",            fabric:"직기" },
+    { code:"SH",  name:"셔츠",                fabric:"직기" },
+    { code:"HT",  name:"반팔 티셔츠",         fabric:"다이마루" },
+    { code:"LT",  name:"긴팔 티셔츠",         fabric:"다이마루" },
+    { code:"KT",  name:"니트탑 / 타이니트",   fabric:"다이마루" },
+    { code:"KN",  name:"니트 / 스웨터",       fabric:"니트" },
+    { code:"CD",  name:"가디건",              fabric:"니트" },
+    { code:"OP",  name:"원피스",              fabric:"기타" },
+    { code:"SK",  name:"스커트 (컴포트)",     fabric:"다이마루" },
+    { code:"WSK", name:"스커트 (직기)",       fabric:"직기" },
+    { code:"PT",  name:"팬츠 (직기/슬랙스)",  fabric:"직기" },
+    { code:"CP",  name:"컴포트팬츠",          fabric:"다이마루" },
+    { code:"DN",  name:"데님",                fabric:"데님" },
+    { code:"JK",  name:"자켓",                fabric:"직기" },
+    { code:"CT",  name:"코트",                fabric:"직기" },
+    { code:"VT",  name:"베스트",              fabric:"기타" },
+    { code:"SET", name:"셋업 (상+하)",        fabric:"기타" },
+    { code:"OPS", name:"플리츠 티셔츠(단순직기)", fabric:"직기" },
+  ];
+  const FABRICS = ["다이마루","직기","니트","데님","기타"];
+
+  const $ = s => document.querySelector(s);
+  const num  = v => { const n = parseInt(String(v).replace(/[^0-9]/g,""),10); return isNaN(n)?0:n; };
+  const numf = v => { const n = parseFloat(String(v).replace(/[^0-9.]/g,"")); return isNaN(n)?0:n; };
+  const won = n => n.toLocaleString("en-US") + "원";
+  const comma = n => n.toLocaleString("en-US");
+
+  // 카테고리 드롭다운 채우기
+  const catSel = $("#cat");
+  CATS.forEach((c,i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = `${c.name}  ·  ${c.code}`;
+    catSel.appendChild(o);
+  });
+  catSel.value = 4; // 니트탑 기본
+
+  function currentCat(){ return CATS[Number(catSel.value)]; }
+  const fabricSel = $("#fabric"), pumInput = $("#pumMyeong");
+
+  // 카테고리 → 원단/품명 '제안' (직접 수정 가능)
+  function applyCat(){
+    const c = currentCat();
+    if(fabricSel.dataset.auto !== "0") fabricSel.value = FABRICS.includes(c.fabric) ? c.fabric : "기타";
+    if(pumInput.dataset.auto !== "0") pumInput.value = c.name;
+    calc();
+  }
+  function genCode(){
+    const c = currentCat();
+    const seq = String(num($("#seq").value) || 0).padStart(3,"0");
+    $("#codeView").textContent = "품번  " + `AS-${$("#season").value}-${c.code}-${seq}`;
+    applyCat();
+  }
+  // ---------- 품번 순번 자동 (이 브라우저 기준 카운터) ----------
+  const LS_SEQ = "aisel_seq_v1";
+  const getCounters = ()=>{ try{ return JSON.parse(localStorage.getItem(LS_SEQ))||{}; }catch(e){ return {}; } };
+  const setCounters = c =>{ try{ localStorage.setItem(LS_SEQ, JSON.stringify(c)); }catch(e){} };
+  const seqKey = ()=> `${$("#season").value}-${currentCat().code}`;
+  const nextSeq = ()=> (getCounters()[seqKey()]||0) + 1;
+  function bumpUsed(n){ const c=getCounters(), k=seqKey(); c[k]=Math.max(c[k]||0, n||0); setCounters(c); }
+  function suggestSeq(){ $("#seq").value = String(nextSeq()).padStart(3,"0"); genCode(); }
+
+  $("#genBtn").addEventListener("click", suggestSeq);        // '다음 번호' 버튼
+  $("#season").addEventListener("change", suggestSeq);       // 시즌 바꾸면 그 시즌 다음 번호
+  $("#seq").addEventListener("input", genCode);              // 직접 고쳐도 품번 실시간 반영
+  catSel.addEventListener("change", ()=>{ fabricSel.dataset.auto="1"; pumInput.dataset.auto="1"; suggestSeq(); });
+  fabricSel.addEventListener("change", ()=> fabricSel.dataset.auto="0");
+  pumInput.addEventListener("input", ()=> pumInput.dataset.auto="0");
+
+  // ---------- 원가 라인 ----------
+  const linesWrap = $("#costLines");
+  function lineAmt(row){
+    const u = numf(row.querySelector(".unit").value);
+    const qraw = row.querySelector(".qty").value.trim();
+    const q = qraw === "" ? 1 : numf(qraw);          // 수량 비우면 ×1 (예: 로스 1000)
+    const a = Math.round(u * q);
+    row.querySelector(".amt").textContent = comma(a); row.dataset.amt = a;
+  }
+  function makeLine(name="", unit="", qty=""){
+    const row = document.createElement("div");
+    row.className = "line";
+    row.innerHTML = `<input type="text" class="nm" placeholder="항목" value="${name}">
+      <input type="text" class="unit won tnum" inputmode="numeric" placeholder="단가" value="${unit}">
+      <input type="text" class="qty tnum" inputmode="decimal" placeholder="비우면1" value="${qty}">
+      <span class="amt">0</span>
+      <button class="del" title="삭제">✕</button>`;
+    row.querySelector(".del").addEventListener("click", ()=>{ row.remove(); calc(); save(); });
+    row.querySelectorAll("input").forEach(i=> i.addEventListener("input", ()=>{ lineAmt(row); calc(); }));
+    linesWrap.appendChild(row); lineAmt(row);
+  }
+  // 샘플 기본 라인 (로스는 수량 비움 = 그대로 1,000)
+  [["원단(야드)","5,000","1"],["단추","30","3"],["단추고리","30","3"],["로스","1,000",""]].forEach(l=>makeLine(l[0],l[1],l[2]));
+  $("#addLine").addEventListener("click", ()=>{ makeLine(); calc(); save(); });
+
+  // 단가/공임/시야게 자동 콤마 (.won)
+  document.addEventListener("input", e=>{
+    if(e.target.classList.contains("won")){
+      const raw = e.target.value.replace(/[^0-9]/g,"");
+      e.target.value = raw ? comma(parseInt(raw,10)) : "";
+    }
+  });
+
+  // ---------- 계산 (예상 제조원가만) ----------
+  function calc(){
+    let sum = 0;
+    linesWrap.querySelectorAll(".line").forEach(r=> sum += Number(r.dataset.amt||0));
+    sum += num($("#gongim").value) + num($("#siyage").value);
+    $("#totalView").textContent = won(sum);
+    // 예상 제조원가: 직접 안 고쳤으면 토탈과 동기화 (고치면 그 값 유지)
+    if($("#estCost").dataset.auto !== "0") $("#estCost").value = sum ? comma(sum) : "";
+  }
+  ["#gongim","#siyage"].forEach(s=> $(s).addEventListener("input", calc));
+  $("#estCost").addEventListener("input", ()=> $("#estCost").dataset.auto = "0");
+
+  // ---------- 사진 (클릭 / 드래그 / 붙여넣기) ----------
+  function loadImgFile(file, box){
+    if(!file || !file.type || !file.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = e => { box.querySelector("img").src = e.target.result; box.classList.add("filled"); setTimeout(save,150); };
+    r.readAsDataURL(file);
+  }
+  let pasteBox = null;
+  document.querySelectorAll(".photo").forEach(box=>{
+    const inp = box.querySelector("input[type=file]");
+    box.addEventListener("click", e=>{ if(e.target.closest(".clr")) return; inp.click(); });
+    inp.addEventListener("change", ()=> loadImgFile(inp.files[0], box));
+    box.addEventListener("dragover", e=>{ e.preventDefault(); box.classList.add("drag"); });
+    box.addEventListener("dragleave", ()=> box.classList.remove("drag"));
+    box.addEventListener("drop", e=>{ e.preventDefault(); box.classList.remove("drag"); loadImgFile(e.dataTransfer.files[0], box); });
+    box.addEventListener("mouseenter", ()=> pasteBox = box);
+    box.querySelector(".clr").addEventListener("click", e=>{
+      e.preventDefault(); e.stopPropagation();
+      box.querySelector("img").src=""; box.classList.remove("filled");
+      inp.value=""; save();
+    });
+  });
+  document.addEventListener("paste", e=>{
+    const items = (e.clipboardData||{}).items; if(!items) return;
+    for(const it of items){ if(it.type && it.type.startsWith("image/")){
+      const box = pasteBox || document.querySelector(".photo:not(.filled)") || $("#ph1");
+      loadImgFile(it.getAsFile(), box); break;
+    }}
+  });
+
+  $("#printBtn").addEventListener("click", ()=>{ bumpUsed(num($("#seq").value)); window.print(); });
+
+  // ---------- 자동저장 (브라우저 localStorage) ----------
+  const LS_KEY = "aisel_wo_v2";
+  const TXT_IDS = ["yy","mm","dd","designer","phone","itemName","factory","blend","gongim","siyage","seq","pumMyeong","estCost"];
+  let loading = false;
+
+  function collect(){
+    const st = { season:$("#season").value, cat:catSel.value, materials:$("#materials").value,
+      fabric:fabricSel.value, fabAuto:fabricSel.dataset.auto||"1", pumAuto:pumInput.dataset.auto||"1",
+      estAuto:$("#estCost").dataset.auto||"1" };
+    TXT_IDS.forEach(id=> st[id] = document.getElementById(id).value);
+    st.lines = [...linesWrap.querySelectorAll(".line")].map(r=>({
+      nm:r.querySelector(".nm").value, unit:r.querySelector(".unit").value, qty:r.querySelector(".qty").value }));
+    st.p1 = document.querySelector("#ph1 img").getAttribute("src") || "";
+    st.p2 = document.querySelector("#ph2 img").getAttribute("src") || "";
+    return st;
+  }
+  function save(){
+    if(loading) return;
+    const st = collect();
+    try { localStorage.setItem(LS_KEY, JSON.stringify(st)); }
+    catch(e){ st.p1=""; st.p2=""; try { localStorage.setItem(LS_KEY, JSON.stringify(st)); } catch(_){} }
+    const s = $("#saveStat"); s.textContent="저장됨 ✓"; s.style.opacity="1";
+    clearTimeout(save._t); save._t=setTimeout(()=> s.style.opacity=".5", 900);
+  }
+  function setPhoto(boxSel, src){
+    const box = document.querySelector(boxSel);
+    if(src){ box.querySelector("img").src = src; box.classList.add("filled"); }
+    else { box.querySelector("img").src=""; box.classList.remove("filled"); }
+  }
+  function load(){
+    let st; try { st = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){}
+    if(!st) return false;
+    loading = true;
+    $("#season").value = st.season ?? "26F";
+    catSel.value = st.cat ?? 4;
+    TXT_IDS.forEach(id=>{ if(st[id]!==undefined) document.getElementById(id).value = st[id]; });
+    $("#materials").value = st.materials || "";
+    fabricSel.value = st.fabric || "다이마루";
+    fabricSel.dataset.auto = st.fabAuto || "1";
+    pumInput.dataset.auto = st.pumAuto || "1";
+    $("#estCost").dataset.auto = st.estAuto || "1";
+    if(Array.isArray(st.lines)){
+      linesWrap.innerHTML="";
+      st.lines.forEach(l=> makeLine(l.nm, l.unit, l.qty));
+    }
+    setPhoto("#ph1", st.p1); setPhoto("#ph2", st.p2);
+    loading = false;
+    genCode();
+    return true;
+  }
+
+  // 날짜: 오늘 자동 + 포커스 시 전체선택(덮어쓰기 편하게)
+  ["yy","mm","dd"].forEach(id=> document.getElementById(id).addEventListener("focus", e=> e.target.select()));
+  function setToday(){
+    const d = new Date();
+    $("#yy").value = d.getFullYear(); $("#mm").value = d.getMonth()+1; $("#dd").value = d.getDate();
+  }
+
+  // 새 작지 (초기화)
+  $("#newBtn").addEventListener("click", ()=>{
+    if(!confirm("지금 내용을 지우고 새 작업지시서를 시작할까요?\n(PDF로 저장 안 했으면 먼저 저장하세요)")) return;
+    bumpUsed(num($("#seq").value));   // 지금 번호를 '사용함'으로 기록 → 다음 작지는 +1
+    localStorage.removeItem(LS_KEY);
+    location.reload();
+  });
+
+  // 자동저장 (디바운스)
+  let saveT; function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(save, 300); }
+  document.addEventListener("input", saveSoon);
+  document.addEventListener("change", saveSoon);
+
+  // init: 저장된 게 있으면 복원, 없으면 오늘 날짜 + 다음 순번 자동
+  if(!load()){ setToday(); suggestSeq(); calc(); }
+</script>
