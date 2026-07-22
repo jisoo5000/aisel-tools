@@ -1,9 +1,20 @@
-# 원가·매출 데이터는 절대 공개 저장소에 올리지 않음 (경쟁사 노출 방지)
+# === 절대 공개 저장소에 올리지 않음 (원가/매출/마진 노출 방지) ===
+# PPT 생성 스크립트: 카테고리별 원가·마진 데이터가 들어있어 비공개
+make_ppt_final.js
+cost_table.json
+*.pptx
+
+# 원가·매출 데이터 파일
 *.csv
 *.xlsx
 *.xls
 *.zip
 *.pdf
+
+# Node 빌드 부산물
+node_modules/
+package.json
+package-lock.json
 
 # 개인정보/원본 데이터
 반품분석/
